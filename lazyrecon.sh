@@ -1,4 +1,4 @@
-#!/bin/bash
+  #!/bin/bash
 
 
 ########################################
@@ -112,12 +112,15 @@ recon(){
   echo "${green}Recon started on $domain ${reset}"
   echo "Listing subdomains using sublister..."
   python ~/tools/Sublist3r/sublist3r.py -d $domain -t 10 -v -o ./$domain/$foldername/$domain.txt > /dev/null
+  echo "Listing subdomains using findomain..."
+  findomain-linux -t $domain -u ./$domain/$foldername/$domain.f.txt > /dev/null
+  cat ./$domain/$foldername/$domain.1.txt >> ./$domain/$foldername/$domain.txt
   echo "Checking certspotter..."
-  curl -s https://certspotter.com/api/v0/certs\?domain\=$domain | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $domain >> ./$domain/$foldername/$domain.txt
-  nsrecords $domain
-  excludedomains
+  #curl -s https://certspotter.com/api/v0/certs\?domain\=$domain | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $domain >> ./$domain/$foldername/$domain.txt
+  #nsrecords $domain
+  #excludedomains
   echo "Starting discovery..."
-  discovery $domain
+  #discovery $domain
   cat ./$domain/$foldername/$domain.txt | sort -u > ./$domain/$foldername/$domain.txt
 
 }
