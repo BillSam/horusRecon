@@ -111,10 +111,11 @@ recon(){
 
   echo "${green}Recon started on $domain ${reset}"
   echo "Listing subdomains using sublister..."
-  python ~/tools/Sublist3r/sublist3r.py -d $domain -t 10 -v -o ./$domain/$foldername/$domain.txt > /dev/null
+  python ~/tools/Sublist3r/sublist3r.py -d $domain -t 10 -v -o ./$domain/$foldername/$domain.s.txt > /dev/null
   echo "Listing subdomains using findomain..."
   findomain-linux -t $domain -u ./$domain/$foldername/$domain.f.txt > /dev/null
-  cat ./$domain/$foldername/$domain.f.txt >> ./$domain/$foldername/$domain.txt
+  cat ./$domain/$foldername/$domain.s.txt > ./$domain/$foldername/$domain.txt
+  cat ./$domain/$foldername/$domain.f.txt > ./$domain/$foldername/$domain.txt
   echo "Checking certspotter..."
   #curl -s https://certspotter.com/api/v0/certs\?domain\=$domain | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $domain >> ./$domain/$foldername/$domain.txt
   #nsrecords $domain
