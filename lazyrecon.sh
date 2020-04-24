@@ -121,7 +121,7 @@ recon(){
   cat ./$domain/$foldername/$domain.a.txt | sort -u > ./$domain/$foldername/$domain.txt
   echo "Checking certspotter..."
   curl -s https://certspotter.com/api/v0/certs\?domain\=$domain | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $domain >> ./$domain/$foldername/$domain.txt
-  #nsrecords $domain
+  nsrecords $domain
   #excludedomains
   echo "Starting discovery..."
   #discovery $domain
@@ -162,7 +162,7 @@ searchcrtsh(){
 }
 
 mass(){
- ~/tools/massdns/scripts/subbrute.py $massdnsWordlist $domain | ~/tools/massdns/bin/massdns -r ~/tools/massdns/lists/resolvers.txt -t A -q -o S | grep -v 142.54.173.92 > ./$domain/$foldername/mass.txt
+ ~/tools/massdns/scripts/subbrute.py ~/tools/SecLists/Discovery/DNS/clean-jhaddix-dns.txt $domain | ~/tools/massdns/bin/massdns -r ~/tools/massdns/lists/resolvers.txt -t A -q  -o S -w  ./$domain/$foldername/mass.txt
 }
 nsrecords(){
                 echo "Checking http://crt.sh"
@@ -173,10 +173,9 @@ nsrecords(){
                 echo "${green}Started dns records check...${reset}"
                 echo "Looking into CNAME Records..."
 
-
-                cat ./$domain/$foldername/mass.txt >> ./$domain/$foldername/temp.txt
-                cat ./$domain/$foldername/domaintemp.txt >> ./$domain/$foldername/temp.txt
-                cat ./$domain/$foldername/crtsh.txt >> ./$domain/$foldername/temp.txt
+                cat ./$domain/$foldername/mass.txt | sort -u > ./$domain/$foldername/temp.txt
+                cat ./$domain/$foldername/domaintemp.txt | sort -u > ./$domain/$foldername/temp.txt
+                cat ./$domain/$foldername/crtsh.txt | sort -u >./$domain/$foldername/temp.txt
 
 
                 cat ./$domain/$foldername/temp.txt | awk '{print $3}' | sort -u | while read line; do
@@ -493,6 +492,7 @@ fi
   touch ./$domain/$foldername/ipaddress.txt
   touch ./$domain/$foldername/cleantemp.txt
   touch ./$domain/$foldername/master_report.html
+  touch ./$domain/$foldername/urllist.txt
 
   cleantemp
   recon $domain
