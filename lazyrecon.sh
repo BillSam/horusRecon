@@ -102,7 +102,6 @@ cat ./$domain/$foldername/alldomains.txt | sort -u | httprobe -c 50 -t 3000 >> .
 cat ./$domain/$foldername/responsive.txt | sed 's/\http\:\/\///g' |  sed 's/\https\:\/\///g' | sort -u | while read line; do
 probeurl=$(cat ./$domain/$foldername/responsive.txt | sort -u | grep -m 1 $line)
 echo "$probeurl" >> ./$domain/$foldername/urllist.txt
-done
 echo "$(cat ./$domain/$foldername/urllist.txt | sort -u)" > ./$domain/$foldername/urllist.txt
 echo  "${yellow}Total of $(wc -l ./$domain/$foldername/urllist.txt | awk '{print $1}') live subdomains were found${reset}"
 }
@@ -124,7 +123,7 @@ recon(){
   nsrecords $domain
   #excludedomains
   echo "Starting discovery..."
-  #discovery $domain
+  discovery $domain
   cat ./$domain/$foldername/$domain.txt | sort -u > ./$domain/$foldername/$domain.txt
 
 }
@@ -147,7 +146,7 @@ excludedomains(){
 dirsearcher(){
 
 echo "Starting dirsearch..."
-cat ./$domain/$foldername/urllist.txt | xargs -P$subdomainThreads -I % sh -c "python3 ~/tools/dirsearch/dirsearch.py -e php,asp,aspx,jsp,html,zip,jar -w $dirsearchWordlist -t $dirsearchThreads -u % | grep Target && tput sgr0 && ./lazyrecon.sh -r $domain -r $foldername -r %"
+cat ./$domain/$foldername/urllist.txt | xargs -P $subdomainThreads -I % sh -c "python3 ~/tools/dirsearch/dirsearch.py -e php,asp,aspx,jsp,html,zip,jar -w $dirsearchWordlist -t $dirsearchThreads -u % | grep Target && tput sgr0 && ./lazyrecon.sh -r $domain -r $foldername -r %"
 }
 
 aqua(){
