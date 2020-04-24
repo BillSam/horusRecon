@@ -102,6 +102,7 @@ cat ./$domain/$foldername/alldomains.txt | sort -u | httprobe -c 50 -t 3000 >> .
 cat ./$domain/$foldername/responsive.txt | sed 's/\http\:\/\///g' |  sed 's/\https\:\/\///g' | sort -u | while read line; do
 probeurl=$(cat ./$domain/$foldername/responsive.txt | sort -u | grep -m 1 $line)
 echo "$probeurl" >> ./$domain/$foldername/urllist.txt
+done
 echo "$(cat ./$domain/$foldername/urllist.txt | sort -u)" > ./$domain/$foldername/urllist.txt
 echo  "${yellow}Total of $(wc -l ./$domain/$foldername/urllist.txt | awk '{print $1}') live subdomains were found${reset}"
 }
