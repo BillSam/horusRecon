@@ -67,7 +67,8 @@ discovery(){
 	aqua $domain
 	cleanup $domain
 	waybackrecon $domain
-	dirsearcher
+  endpoints 
+	#dirsearcher
 }
 
 waybackrecon () {
@@ -87,6 +88,11 @@ cat ./$domain/$foldername/wayback-data/waybackurls.txt  | sort -u | grep -P "\w+
 
 cat ./$domain/$foldername/wayback-data/waybackurls.txt  | sort -u | grep -P "\w+\.jsp(\?|$) | sort -u " > ./$domain/$foldername/wayback-data/jspurls.txt
 [ -s ./$domain/$foldername/wayback-data/jspurls.txt ] && echo "JSP Urls saved to /$domain/$foldername/wayback-data/jspurls.txt"
+}
+
+endpoints(){
+  echo "Getting endpoints from js using relativeurl"
+  cat ./$domain/$foldername/wayback-data/jsurls.txt | while read url;do ruby ~/tools/relative-url-extractor/extract.rb $url >> ./$domain/$foldername/wayback-data/endpoints/$url.txt ;done
 }
 
 cleanup(){
@@ -491,6 +497,7 @@ fi
   mkdir ./$domain/$foldername/reports/
   mkdir ./$domain/$foldername/wayback-data/
   mkdir ./$domain/$foldername/screenshots/
+  mkdir ./$domain/$foldername/wayback-data/endpoints/
   touch ./$domain/$foldername/crtsh.txt
   touch ./$domain/$foldername/mass.txt
   touch ./$domain/$foldername/cnames.txt
