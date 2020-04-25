@@ -113,7 +113,7 @@ scanjs(){
         n2=$(echo $i | awk -F/ '{print $1}' | sed 's/.$//')
         mkdir -p ./$domain/$foldername/js/$n1-$n2
         mkdir -p ./$domain/$foldername/db/$n1-$n2
-        timeout 30 python3 $linkf -d -i $i -o cli > js/$n1-$n2/raw.txt
+        timeout 30 python3 $linkf -d -i $i -o cli > ./$domain/$foldername/js/$n1-$n2/raw.txt
 
         jslinks=$(cat js/$n1-$n2/raw.txt | grep -oaEi "https?://[^\"\\'> ]+" | grep '\.js' | grep "$n1" | sort -u)
 
@@ -121,9 +121,9 @@ scanjs(){
         then
                 for js in $jslinks
                 do
-                        python3 $linkf -i $js -o cli >> js/$n1-$n2/linkfinder.txt
-                        echo "$js" >> js/$n1-$n2/jslinks.txt
-      wget $js -P db/$n1-$n2/ -q
+                        python3 $linkf -i $js -o cli >> ./$domain/$foldername/js/$n1-$n2/linkfinder.txt
+                        echo "$js" >> ./$domain/$foldername/js/$n1-$n2/jslinks.txt
+      wget $js -P ./$domain/$foldername/db/$n1-$n2/ -q
                 done
         fi
         echo "Done with js"
