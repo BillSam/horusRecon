@@ -92,7 +92,9 @@ cat ./$domain/$foldername/wayback-data/waybackurls.txt  | sort -u | grep -P "\w+
 
 endpoints(){
   echo "Getting endpoints from js using relativeurl"
-  cat ./$domain/$foldername/wayback-data/jsurls.txt | while read url;do ruby ~/tools/relative-url-extractor/extract.rb $url >> ./$domain/$foldername/wayback-data/endpoints/$url.txt ;done
+  touch ./$domain/$foldername/wayback-data/endpoints/endpoints.txt
+  cat ./$domain/$foldername/wayback-data/jsurls.txt | while read url;do 
+    ruby ~/tools/relative-url-extractor/extract.rb $url >> ./$domain/$foldername/wayback-data/endpoints/$url.txt ;done
 }
 
 cleanup(){
