@@ -94,7 +94,7 @@ endpoints(){
   echo "Getting endpoints from js using relativeurl"
   touch ./$domain/$foldername/wayback-data/endpoints/endpoints.txt
   cat ./$domain/$foldername/wayback-data/jsurls.txt | while read url;do 
-    ruby ~/tools/relative-url-extractor/extract.rb $url >> ./$domain/$foldername/wayback-data/endpoints/$url.txt ;done
+    ruby ~/tools/relative-url-extractor/extract.rb $url >> ./$domain/$foldername/wayback-data/endpoints/endpoints.txt ;done
 }
 
 cleanup(){
