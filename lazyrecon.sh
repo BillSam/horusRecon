@@ -67,8 +67,8 @@ discovery(){
 	#cleandirsearch $domain
 	#aqua $domain
 	#cleanup $domain
-	waybackrecon $domain
-  endpoints
+	#waybackrecon $domain
+  #endpoints
   scanjs
    
 	#dirsearcher
