@@ -64,7 +64,7 @@ fi
 discovery(){
 	hostalive $domain
 	cleandirsearch $domain
-	aqua $domain
+	#aqua $domain
 	cleanup $domain
 	waybackrecon $domain
   endpoints 
