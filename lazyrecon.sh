@@ -9,7 +9,7 @@
 ########################################
 auquatoneThreads=5
 subdomainThreads=10
-dirsearchThreads=50
+dirsearchThreads=20
 dirsearchWordlist=~/tools/dirsearch/db/dicc.txt
 massdnsWordlist=~/tools/SecLists/Discovery/DNS/clean-jhaddix-dns.txt
 chromiumPath=/snap/bin/chromium
@@ -146,8 +146,21 @@ excludedomains(){
 
 dirsearcher(){
 
-echo "Starting dirsearch..."
-cat ./$domain/$foldername/urllist.txt | xargs -P $subdomainThreads -I % sh -c "python3 ~/tools/dirsearch/dirsearch.py -e php,asp,aspx,jsp,html,zip,jar -w $dirsearchWordlist -t $dirsearchThreads -u % | grep Target && tput sgr0 && ./lazyrecon.sh -r $domain -r $foldername -r %"
+echo "Starting dirsearch...using dirsearch"
+cat ./$domain/$foldername/urllist.txt | xargs -P$subdomainThreads -I % sh -c "python3 ~/tools/dirsearch/dirsearch.py -e php,asp,aspx,jsp,html,zip,jar -w $dirsearchWordlist -t $dirsearchThreads -u % | grep Target && tput sgr0 && ./lazyrecon.sh -r $domain -r $foldername -r %"
+}
+
+dirffuf(){
+  echo "Starting dirsearch...using ffuf"
+  cat ./$domain/$foldername/urllist.txt | while read url;do ffuf -mc all -c -H "X-Forwarded-For: 127.0.0.1" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0" -u "$url/FUZZ" -w ~/tools/ffufplus/wordlist/dicc.txt -D -e js,php,bak,txt,asp,aspx,jsp,html,zip,jar,sql,json,old,gz,shtml,log,swp,yaml,yml,config,save,rsa,ppk -ac -o result_dir.tmp;done
+  cat result_dir.tmp | jq '[.results[]|{status: .status, length: .length, url: .url}]' | grep -oP "status\":\s(\d{3})|length\":\s(\d{1,7})|url\":\s\"(http[s]?:\/\/.*?)\"" | paste -d' ' - - - | awk '{print $2" "$4" "$6}' | sed 's/\"//g' > result_dir.txt
+  printf "\nDone. Result is stored in result_dir.txt\n"
+}
+
+paramffuf(){
+  printf "\nParameter Discovery"
+  cat ./$domain/$foldername/urllist.txt | while read url;do ffuf -mc all -c -H "X-Forwarded-For: 127.0.0.1" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0" -u "$domain?FUZZ=abcd" -w wordlist/param.txt -ac | tee result_param.txt;done
+  printf "\nDone. Result is stored in result_param.txt\n"
 }
 
 aqua(){
@@ -168,7 +181,7 @@ nsrecords(){
                 echo "Checking http://crt.sh"
                 searchcrtsh $domain
                 echo "Starting Massdns Subdomain discovery this may take a while"
-                mass $domain > /dev/null
+                #mass $domain > /dev/null
                 echo "Massdns finished..."
                 echo "${green}Started dns records check...${reset}"
                 echo "Looking into CNAME Records..."
@@ -181,10 +194,6 @@ nsrecords(){
                 cat ./$domain/$foldername/temp.txt | awk '{print $3}' | sort -u | while read line; do
                 wildcard=$(cat ./$domain/$foldername/temp.txt | grep -m 1 $line)
                 echo "$wildcard" >> ./$domain/$foldername/cleantemp.txt
-                done
-
-
-
                 cat ./$domain/$foldername/cleantemp.txt | grep CNAME >> ./$domain/$foldername/cnames.txt
                 cat ./$domain/$foldername/cnames.txt | sort -u | while read line; do
                 hostrec=$(echo "$line" | awk '{print $1}')
