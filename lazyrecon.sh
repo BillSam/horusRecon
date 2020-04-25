@@ -111,8 +111,8 @@ scanjs(){
   do
         n1=$(echo $i | awk -F/ '{print $3}')
         n2=$(echo $i | awk -F/ '{print $1}' | sed 's/.$//')
-        mkdir ./$domain/$foldername/js/$n1-$n2
-        mkdir ./$domain/$foldername/db/$n1-$n2
+        mkdir -p ./$domain/$foldername/js/$n1-$n2
+        mkdir -p ./$domain/$foldername/db/$n1-$n2
         timeout 30 python3 $linkf -d -i $i -o cli > js/$n1-$n2/raw.txt
 
         jslinks=$(cat js/$n1-$n2/raw.txt | grep -oaEi "https?://[^\"\\'> ]+" | grep '\.js' | grep "$n1" | sort -u)
