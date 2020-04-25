@@ -194,6 +194,7 @@ nsrecords(){
                 cat ./$domain/$foldername/temp.txt | awk '{print $3}' | sort -u | while read line; do
                 wildcard=$(cat ./$domain/$foldername/temp.txt | grep -m 1 $line)
                 echo "$wildcard" >> ./$domain/$foldername/cleantemp.txt
+                done
                 cat ./$domain/$foldername/cleantemp.txt | grep CNAME >> ./$domain/$foldername/cnames.txt
                 cat ./$domain/$foldername/cnames.txt | sort -u | while read line; do
                 hostrec=$(echo "$line" | awk '{print $1}')
