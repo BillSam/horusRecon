@@ -13,6 +13,7 @@ dirsearchThreads=20
 dirsearchWordlist=~/tools/dirsearch/db/dicc.txt
 massdnsWordlist=~/tools/SecLists/Discovery/DNS/clean-jhaddix-dns.txt
 chromiumPath=/snap/bin/chromium
+linkf=~/tools/LinkFinder/linkfinder.py
 ########################################
 # Happy Hunting
 ########################################
@@ -64,11 +65,15 @@ fi
 discovery(){
 	hostalive $domain
 	cleandirsearch $domain
-	#aqua $domain
+	aqua $domain
 	cleanup $domain
 	waybackrecon $domain
-  endpoints 
+  sweetjs 
 	#dirsearcher
+}
+sweetjs(){
+  endpoints
+  scanjs
 }
 
 waybackrecon () {
@@ -94,7 +99,32 @@ endpoints(){
   echo "Getting endpoints from js using relativeurl"
   touch ./$domain/$foldername/wayback-data/endpoints/endpoints.txt
   cat ./$domain/$foldername/wayback-data/jsurls.txt | while read url;do 
-    ruby ~/tools/relative-url-extractor/extract.rb $url >> ./$domain/$foldername/wayback-data/endpoints/endpoints.txt ;done
+    ruby ~/tools/relative-url-extractor/extract.rb $url >> ./$domain/$foldername/wayback-data/endpoints/endpoints.txt
+  done
+}
+
+scanjs(){
+  for i in $(cat ./$domain/$foldername/urllist.txt)
+  do
+        n1=$(echo $i | awk -F/ '{print $3}')
+        n2=$(echo $i | awk -F/ '{print $1}' | sed 's/.$//')
+        mkdir js/$n1-$n2
+        mkdir db/$n1-$n2
+        timeout 30 python3 $linkf -d -i $i -o cli > js/$n1-$n2/raw.txt
+
+        jslinks=$(cat js/$n1-$n2/raw.txt | grep -oaEi "https?://[^\"\\'> ]+" | grep '\.js' | grep "$n1" | sort -u)
+
+        if [[ ! -z $jslinks ]]
+        then
+                for js in $jslinks
+                do
+                        python3 $linkf -i $js -o cli >> js/$n1-$n2/linkfinder.txt
+                        echo "$js" >> js/$n1-$n2/jslinks.txt
+      wget $js -P db/$n1-$n2/ -q
+                done
+        fi
+        printf "${GREEN}[+]${END} $i ${YELLOW}done${END}.\\n"
+  done
 }
 
 cleanup(){
