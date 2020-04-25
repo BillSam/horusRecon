@@ -104,12 +104,13 @@ endpoints(){
 }
 
 scanjs(){
+  echo "Scan for js"
   for i in $(cat ./$domain/$foldername/urllist.txt)
   do
         n1=$(echo $i | awk -F/ '{print $3}')
         n2=$(echo $i | awk -F/ '{print $1}' | sed 's/.$//')
-        mkdir js/$n1-$n2
-        mkdir db/$n1-$n2
+        mkdir ./$domain/$foldername/js/$n1-$n2
+        mkdir ./$domain/$foldername/db/$n1-$n2
         timeout 30 python3 $linkf -d -i $i -o cli > js/$n1-$n2/raw.txt
 
         jslinks=$(cat js/$n1-$n2/raw.txt | grep -oaEi "https?://[^\"\\'> ]+" | grep '\.js' | grep "$n1" | sort -u)
@@ -123,7 +124,7 @@ scanjs(){
       wget $js -P db/$n1-$n2/ -q
                 done
         fi
-        printf "${GREEN}[+]${END} $i ${YELLOW}done${END}.\\n"
+        echo "Done with js"
   done
 }
 
