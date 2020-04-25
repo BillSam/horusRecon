@@ -115,7 +115,7 @@ scanjs(){
         mkdir -p ./$domain/$foldername/db/$n1-$n2
         timeout 30 python3 $linkf -d -i $i -o cli > ./$domain/$foldername/js/$n1-$n2/raw.txt
 
-        jslinks=$(cat js/$n1-$n2/raw.txt | grep -oaEi "https?://[^\"\\'> ]+" | grep '\.js' | grep "$n1" | sort -u)
+        jslinks=$(cat ./$domain/$foldername/js/$n1-$n2/raw.txt | grep -oaEi "https?://[^\"\\'> ]+" | grep '\.js' | grep "$n1" | sort -u)
 
         if [[ ! -z $jslinks ]]
         then
