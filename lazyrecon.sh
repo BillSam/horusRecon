@@ -226,18 +226,6 @@ echo "Starting dirsearch...using dirsearch"
 cat ./$domain/$foldername/urllist.txt | xargs -P$subdomainThreads -I % sh -c "python3 ~/tools/dirsearch/dirsearch.py -e php,asp,aspx,jsp,html,zip,jar -w $dirsearchWordlist -t $dirsearchThreads -u % | grep Target && tput sgr0 && ./lazyrecon.sh -r $domain -r $foldername -r %"
 }
 
-dirffuf(){
-  echo "Starting dirsearch...using ffuf"
-  cat ./$domain/$foldername/urllist.txt | while read url;do ffuf -mc all -c -H "X-Forwarded-For: 127.0.0.1" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0" -u "$url/FUZZ" -w ~/tools/ffufplus/wordlist/dicc.txt -D -e js,php,bak,txt,asp,aspx,jsp,html,zip,jar,sql,json,old,gz,shtml,log,swp,yaml,yml,config,save,rsa,ppk -ac -o result_dir.tmp;done
-  cat result_dir.tmp | jq '[.results[]|{status: .status, length: .length, url: .url}]' | grep -oP "status\":\s(\d{3})|length\":\s(\d{1,7})|url\":\s\"(http[s]?:\/\/.*?)\"" | paste -d' ' - - - | awk '{print $2" "$4" "$6}' | sed 's/\"//g' > result_dir.txt
-  printf "\nDone. Result is stored in result_dir.txt\n"
-}
-
-paramffuf(){
-  printf "\nParameter Discovery"
-  cat ./$domain/$foldername/urllist.txt | while read url;do ffuf -mc all -c -H "X-Forwarded-For: 127.0.0.1" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0" -u "$domain?FUZZ=abcd" -w wordlist/param.txt -ac | tee result_param.txt;done
-  printf "\nDone. Result is stored in result_param.txt\n"
-}
 
 aqua(){
 echo "Starting aquatone scan..."
