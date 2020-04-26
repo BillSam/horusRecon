@@ -67,10 +67,10 @@ discovery(){
 	#cleandirsearch $domain
 	#aqua $domain
 	#cleanup $domain
-  ffuffingback $domain
+  ffuffingback
 	#waybackrecon $domain
   #endpoints
-  scanjs
+  #scanjs
    
 	#dirsearcher
 }
