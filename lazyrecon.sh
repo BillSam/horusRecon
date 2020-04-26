@@ -70,7 +70,7 @@ discovery(){
   ffuffingback $domain
 	#waybackrecon $domain
   #endpoints
-  scanjs
+  #scanjs
    
 	#dirsearcher
 }
