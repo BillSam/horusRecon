@@ -101,7 +101,7 @@ vhost(){
   for url in $(cat ./$domain/$foldername/urllist.txt); do
     printf "\nVHOST Discovery"
     dom=$(echo "$url" | unfurl -u domain)
-    ffuf -mc all -c -u "$dom" -H "Host: FUZZ.$dom" -w ~/tools/ffufplus/wordlist/vhost.txt -ac -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0" -o ./$domain/$foldername/result_vhost.txt
+    ffuf -mc all -c -u "$url" -H "Host: FUZZ.$dom" -w ~/tools/ffufplus/wordlist/vhost.txt -ac -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0" -o ./$domain/$foldername/result_vhost.txt
     printf "\nDone. Result is stored in result_vhost.txt\n"
   done
 }
