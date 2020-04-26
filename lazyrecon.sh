@@ -93,7 +93,7 @@ ffuffingback(){
   
   for url in $(cat ./$domain/$foldername/result_wayback.txt ); do
     STRING=($url)
-    echo "${STRING[n]}" >> ./$domain/$foldername/wayback-data/wwaybackurls.txt
+    echo "${STRING[2]}" >> ./$domain/$foldername/wayback-data/wwaybackurls.txt
     #statements
   done
 }
