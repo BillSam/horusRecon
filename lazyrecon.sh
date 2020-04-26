@@ -83,8 +83,11 @@ sweetjs(){
 ffuffingback(){
   printf "\nGathering waybackurls, otxUrls also commoncrawl data"
   touch ./$domain/$foldername/result_wayback.txt
+  touch ./$domain/$foldername/result_gau.tmp
   for url in $(cat ./$domain/$foldername/urllist.txt)
   do
+    touch ./$domain/$foldername/gau.tmp
+    touch ./$domain/$foldername/result_gau.tmp
     domain=$(echo "$url" | unfurl -u domain)
     gau $domain > ./$domain/$foldername/gau.tmp
     ffuf -mc all -c -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0" -u FUZZ -w ./$domain/$foldername/gau.tmp -o ./$domain/$foldername/result_gau.tmp
