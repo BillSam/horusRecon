@@ -63,6 +63,7 @@ if [ -z "${domain}" ] && [[ -z ${subreport[@]} ]]; then
 fi
 
 discovery(){
+  vhost $domain
 	#hostalive $domain
 	#cleandirsearch $domain
 	#aqua $domain
