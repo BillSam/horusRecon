@@ -68,15 +68,12 @@ discovery(){
 	#cleandirsearch $domain
 	#aqua $domain
 	#cleanup $domain
-	waybackrecon $domain
-  #endpoints
-  #scanjs
-   
-	#dirsearcher
+	#waybackrecon $domain
+  sweetjs
+  #dirsearcher
 }
 
 sweetjs(){
-  endpoints
   scanjs
 }
 
@@ -118,11 +115,10 @@ waybackrecon () {
 echo "Scraping wayback for data..."
 #cat ./$domain/$foldername/urllist.txt | waybackurls > ./$domain/$foldername/wayback-data/waybackurls.txt
 echo "ffuffing for wayback data"
-#ffuffingback 
+ffuffingback 
 echo "Done ffuffingback..."
-
 echo "Params mining...."
-ffuffingparam
+#ffuffingparam
 cat ./$domain/$foldername/wayback-data/waybackurls.txt  | sort -u | unfurl --unique keys > ./$domain/$foldername/wayback-data/paramlist.txt
 [ -s ./$domain/$foldername/wayback-data/paramlist.txt ] && echo "Wordlist saved to /$domain/$foldername/wayback-data/paramlist.txt"
 
