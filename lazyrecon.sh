@@ -63,12 +63,12 @@ if [ -z "${domain}" ] && [[ -z ${subreport[@]} ]]; then
 fi
 
 discovery(){
-  vhost $domain
+  #vhost $domain
 	#hostalive $domain
 	#cleandirsearch $domain
 	#aqua $domain
 	#cleanup $domain
-	#waybackrecon $domain
+	waybackrecon $domain
   #endpoints
   #scanjs
    
@@ -106,12 +106,23 @@ vhost(){
   done
 }
 
+ffuffingparam(){
+  for url in $(cat ./$domain/$foldername/urllist.txt); do
+    printf "\nParameter Discovery"
+    ffuf -mc all -c -H "X-Forwarded-For: 127.0.0.1" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0" -u "$url?FUZZ=abcd" -w ~/tools/ffufplus/wordlist/param.txt -ac | tee ./$domain/$foldername/result_param.txt
+    printf "\nDone. Result is stored" 
+  done
+}
+
 waybackrecon () {
 echo "Scraping wayback for data..."
-cat ./$domain/$foldername/urllist.txt | waybackurls > ./$domain/$foldername/wayback-data/waybackurls.txt
+#cat ./$domain/$foldername/urllist.txt | waybackurls > ./$domain/$foldername/wayback-data/waybackurls.txt
 echo "ffuffing for wayback data"
-ffuffingback 
+#ffuffingback 
 echo "Done ffuffingback..."
+
+echo "Params mining...."
+ffuffingparam
 cat ./$domain/$foldername/wayback-data/waybackurls.txt  | sort -u | unfurl --unique keys > ./$domain/$foldername/wayback-data/paramlist.txt
 [ -s ./$domain/$foldername/wayback-data/paramlist.txt ] && echo "Wordlist saved to /$domain/$foldername/wayback-data/paramlist.txt"
 
