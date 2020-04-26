@@ -67,20 +67,39 @@ discovery(){
 	#cleandirsearch $domain
 	#aqua $domain
 	#cleanup $domain
-	#waybackrecon $domain
+	waybackrecon $domain
   #endpoints
   scanjs
    
 	#dirsearcher
 }
+
 sweetjs(){
   endpoints
   scanjs
 }
 
+ffuffingback(){
+  printf "\nGathering waybackurls, otxUrls also commoncrawl data"
+  
+  for url in $(cat ./$domain/$foldername/urllist.txt)
+  do
+    domain=$(echo "$url" | unfurl -u domain)
+    gau $domain > ./$domain/$foldername/gau.tmp
+    ffuf -mc all -c -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0" -u FUZZ -w ./$domain/$foldername/gau.tmp -o ./$domain/$foldername/result_gau.tmp
+    cat ./$domain/$foldername/result_gau.tmp | jq '[.results[]|{status: .status, length: .length, url: .url}]' | grep -oP "status\":\s(\d{3})|length\":\s(\d{1,7})|url\":\s\"(http[s]?:\/\/.*?)\"" | paste -d' ' - - - | awk '{print $2" "$4" "$6}' | sed 's/\"//g' > result_wayback.txt
+    rm ./$domain/$foldername/result_gau.tmp
+    rm ./$domain/$foldername/gau.tmp
+    printf "\nDone. Result is stored in result_wayback.txt\n"
+  done
+  
+}
+
 waybackrecon () {
 echo "Scraping wayback for data..."
-cat ./$domain/$foldername/urllist.txt | waybackurls > ./$domain/$foldername/wayback-data/waybackurls.txt
+#cat ./$domain/$foldername/urllist.txt | waybackurls > ./$domain/$foldername/wayback-data/waybackurls.txt
+echo "ffuffing for wayback data"
+ffuffingback
 cat ./$domain/$foldername/wayback-data/waybackurls.txt  | sort -u | unfurl --unique keys > ./$domain/$foldername/wayback-data/paramlist.txt
 [ -s ./$domain/$foldername/wayback-data/paramlist.txt ] && echo "Wordlist saved to /$domain/$foldername/wayback-data/paramlist.txt"
 
@@ -95,14 +114,6 @@ cat ./$domain/$foldername/wayback-data/waybackurls.txt  | sort -u | grep -P "\w+
 
 cat ./$domain/$foldername/wayback-data/waybackurls.txt  | sort -u | grep -P "\w+\.jsp(\?|$) | sort -u " > ./$domain/$foldername/wayback-data/jspurls.txt
 [ -s ./$domain/$foldername/wayback-data/jspurls.txt ] && echo "JSP Urls saved to /$domain/$foldername/wayback-data/jspurls.txt"
-}
-
-endpoints(){
-  echo "Getting endpoints from js using relativeurl"
-  touch ./$domain/$foldername/wayback-data/endpoints/endpoints.txt
-  cat ./$domain/$foldername/wayback-data/jsurls.txt | while read url;do 
-    ruby ~/tools/relative-url-extractor/extract.rb $url >> ./$domain/$foldername/wayback-data/endpoints/endpoints.txt
-  done
 }
 
 scanjs(){
@@ -123,11 +134,12 @@ scanjs(){
                 do
                         python3 $linkf -i $js -o cli >> ./$domain/$foldername/js/$n1-$n2/linkfinder.txt
                         echo "$js" >> ./$domain/$foldername/js/$n1-$n2/jslinks.txt
-      wget $js -P ./$domain/$foldername/db/$n1-$n2/ -q
+                        wget $js -P ./$domain/$foldername/db/$n1-$n2/ -q
                 done
         fi
-        echo "Done with js"
+        
   done
+  echo "Done with js"
 }
 
 cleanup(){
@@ -218,6 +230,7 @@ searchcrtsh(){
 mass(){
  ~/tools/massdns/scripts/subbrute.py ~/tools/SecLists/Discovery/DNS/clean-jhaddix-dns.txt $domain | ~/tools/massdns/bin/massdns -r ~/tools/massdns/lists/resolvers.txt -t A -q  -o S -w  ./$domain/$foldername/mass.txt
 }
+
 nsrecords(){
                 echo "Checking http://crt.sh"
                 searchcrtsh $domain
