@@ -88,7 +88,7 @@ ffuffingback(){
     dom=$(echo "$url" | unfurl -u domain)
     gau $dom > ./$domain/$foldername/gau.tmp
     ffuf -mc all -c -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0" -u FUZZ -w ./$domain/$foldername/gau.tmp -o ./$domain/$foldername/result_gau.tmp
-    cat ./$domain/$foldername/result_gau.tmp | jq '[.results[]|{status: .status, length: .length, url: .url}]' | grep -oP "status\":\s(\d{3})|length\":\s(\d{1,7})|url\":\s\"(http[s]?:\/\/.*?)\"" | paste -d' ' - - - | awk '{print $2" "$4" "$6}' | sed 's/\"//g' > ./$domain/$foldername/result_wayback.txt
+    cat ./$domain/$foldername/result_gau.tmp | jq '[.results[]|{status: .status, length: .length, url: .url}]' | grep -oP "status\":\s(\d{3})|length\":\s(\d{1,7})|url\":\s\"(http[s]?:\/\/.*?)\"" | paste -d' ' - - - | awk '{print $2" "$4" "$6}' | sed 's/\"//g' >> ./$domain/$foldername/result_wayback.txt
     rm ./$domain/$foldername/result_gau.tmp
     rm ./$domain/$foldername/gau.tmp
     printf "\nDone. Result is stored in result_wayback.txt\n"
