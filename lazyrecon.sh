@@ -67,10 +67,10 @@ discovery(){
 	#cleandirsearch $domain
 	#aqua $domain
 	#cleanup $domain
-  ffuffingback
+  ffuffingback $domain
 	#waybackrecon $domain
   #endpoints
-  #scanjs
+  scanjs
    
 	#dirsearcher
 }
@@ -82,17 +82,15 @@ sweetjs(){
 
 ffuffingback(){
   printf "\nGathering waybackurls, otxUrls also commoncrawl data"
-  touch ./$domain/$foldername/result_wayback.txt
+  
   for url in $(cat ./$domain/$foldername/urllist.txt)
   do
-    touch ./$domain/$foldername/gau.txt
-    touch ./$domain/$foldername/result_gau.txt
-    domain=$(echo "$url" | unfurl -u domain)
-    echo $domain >> ./$domain/$foldername/gau.txt
-    ffuf -mc all -c -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0" -u FUZZ -w ./$domain/$foldername/gau.txt -o ./$domain/$foldername/result_gau.txt
-    cat ./$domain/$foldername/result_gau.txt | jq '[.results[]|{status: .status, length: .length, url: .url}]' | grep -oP "status\":\s(\d{3})|length\":\s(\d{1,7})|url\":\s\"(http[s]?:\/\/.*?)\"" | paste -d' ' - - - | awk '{print $2" "$4" "$6}' | sed 's/\"//g' >> result_wayback.txt
-    rm ./$domain/$foldername/result_gau.txt
-    rm ./$domain/$foldername/gau.txt
+    dom=$(echo "$url" | unfurl -u domain)
+    gau $dom > ./$domain/$foldername/gau.tmp
+    ffuf -mc all -c -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0" -u FUZZ -w ./$domain/$foldername/gau.tmp -o ./$domain/$foldername/result_gau.tmp
+    cat ./$domain/$foldername/result_gau.tmp | jq '[.results[]|{status: .status, length: .length, url: .url}]' | grep -oP "status\":\s(\d{3})|length\":\s(\d{1,7})|url\":\s\"(http[s]?:\/\/.*?)\"" | paste -d' ' - - - | awk '{print $2" "$4" "$6}' | sed 's/\"//g' > result_wayback.txt
+    rm ./$domain/$foldername/result_gau.tmp
+    rm ./$domain/$foldername/gau.tmp
     printf "\nDone. Result is stored in result_wayback.txt\n"
   done
   
@@ -100,9 +98,11 @@ ffuffingback(){
 
 waybackrecon () {
 echo "Scraping wayback for data..."
-#cat ./$domain/$foldername/urllist.txt | waybackurls > ./$domain/$foldername/wayback-data/waybackurls.txt
+cat ./$domain/$foldername/urllist.txt | waybackurls > ./$domain/$foldername/wayback-data/waybackurls.txt
 echo "ffuffing for wayback data"
 ffuffingback
+
+
 cat ./$domain/$foldername/wayback-data/waybackurls.txt  | sort -u | unfurl --unique keys > ./$domain/$foldername/wayback-data/paramlist.txt
 [ -s ./$domain/$foldername/wayback-data/paramlist.txt ] && echo "Wordlist saved to /$domain/$foldername/wayback-data/paramlist.txt"
 
