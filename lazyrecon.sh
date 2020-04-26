@@ -62,6 +62,8 @@ if [ -z "${domain}" ] && [[ -z ${subreport[@]} ]]; then
    usage; exit 1;
 fi
 
+
+
 discovery(){
   vhost $domain
 	hostalive $domain
@@ -73,8 +75,67 @@ discovery(){
   dirsearcher
 }
 
+probheaders(){
+  mkdir -p ./$domain/$foldername/data/headers
+  mkdir -p ./$domain/$foldername/data/responsebody
+  CURRENT_PATH=$(pwd)
+  for url in $(cat ./$domain/$foldername/urllist.txt)
+  do
+          NAME=$(echo $url | awk -F/ '{print $3}')
+          curl -X GET -H "X-Forwarded-For: evil.com" $url -I > "$CURRENT_PATH/$domain/$foldername/data/headers/$NAME"
+          curl -s -X GET -H "X-Forwarded-For: evil.com" -L $url > "$CURRENT_PATH/$domain/$foldername/data/responsebody/$NAME"
+  done
+}
+
+probjs(){
+mkdir -p ./$domain/$foldername/data/scripts
+mkdir -p ./$domain/$foldername/data/scriptsresponse
+
+RED='\033[0;31m'
+NC='\033[0m'
+CUR_PATH=$(pwd)
+
+for x in $(ls "$CUR_PATH/$domain/$foldername/data/responsebody")
+do
+        printf "\n\n${RED}$x${NC}\n\n"
+        END_POINTS=$(cat "$CUR_PATH/$domain/$foldername/data/responsebody/$x" | grep -Eoi "src=\"[^>]+></script>" | cut -d '"' -f 2)
+        for end_point in $END_POINTS
+        do
+                len=$(echo $end_point | grep "http" | wc -c)
+                mkdir -p "./$domain/$foldername/data/scriptsresponse/$x/"
+                URL=$end_point
+                if [ $len == 0 ]
+                then
+                        URL="https://$x$end_point"
+                fi
+                file=$(basename $end_point)
+                curl -X GET $URL -L > "./$domain/$foldername/data/scriptsresponse/$x/$file"
+                echo $URL >> "./$domain/$foldername/data/scripts/$x"
+        done
+done
+
+
+}
+
+probemdpoints(){
+mkdir -p ./$domain/$foldername/data/endpoints
+CUR_DIR=$(pwd)
+for dom in $(ls ./$domain/$foldername/data/scriptsresponse/)
+do
+        #looping through files in each domain
+        mkdir -p ./$domain/$foldername/data/endpoints/$dom
+        for file in $(ls ./$domain/$foldername/data/scriptsresponse/$domain)
+        do
+                ruby ~/tools/relative-url-extractor/extract.rb ./$domain/$foldername/data/scriptsresponse/$dom/$file >> ./$domain/$foldername/data/endpoints/$dom/$file 
+        done
+done
+}
+
 sweetjs(){
+  probheaders
   scanjs
+  probemdpoints
+
 }
 
 ffuffingback(){
@@ -122,7 +183,7 @@ echo "ffuffing for wayback data"
 ffuffingback 
 echo "Done ffuffingback..."
 echo "Params mining...."
-ffuffingparam
+#ffuffingparam
 cat ./$domain/$foldername/wayback-data/waybackurls.txt  | sort -u | unfurl --unique keys > ./$domain/$foldername/wayback-data/paramlist.txt
 [ -s ./$domain/$foldername/wayback-data/paramlist.txt ] && echo "Wordlist saved to /$domain/$foldername/wayback-data/paramlist.txt"
 
