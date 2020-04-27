@@ -65,10 +65,11 @@ fi
 
 
 discovery(){
-  vhost $domain
+ 
 	hostalive $domain
 	cleandirsearch $domain
-	#aqua $domain
+  vhost $domain
+	aqua $domain
 	cleanup $domain
 	waybackrecon $domain
   sweetjs $domain
@@ -197,7 +198,8 @@ urlscanio(){
   mkdir -p ./$domain/$foldername/wayback-data/urlio
   for url in $(cat ./$domain/$foldername/urllist.txt); do
     #statements
-    gron https://urlscan.io/api/v1/search/?q=domain:$url  | grep 'url' | gron --ungron | tee ./$domain/$foldername/wayback-data/urlio/urlio.txt
+    dom=$(echo $url | awk -F/ '{print $3}') 
+    gron "https://urlscan.io/api/v1/search/?q=domain:$dom"  | grep 'url' | gron --ungron | tee ./$domain/$foldername/wayback-data/urlio/urlio.txt
   done
   
 }
