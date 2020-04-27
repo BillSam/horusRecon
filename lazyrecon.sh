@@ -68,11 +68,36 @@ discovery(){
   vhost $domain
 	hostalive $domain
 	cleandirsearch $domain
-	aqua $domain
+	#aqua $domain
 	cleanup $domain
 	waybackrecon $domain
   sweetjs $domain
-  dirsearcher
+  #dirsearcher
+}
+
+vhost(){
+  for url in $(cat ./$domain/$foldername/urllist.txt); do
+    printf "\nVHOST Discovery"
+    dom=$(echo "$url" | unfurl -u domain)
+    ffuf -mc all -c -u "$url" -H "Host: FUZZ.$dom" -w ~/tools/ffufplus/wordlist/vhost.txt -ac -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0" -o ./$domain/$foldername/result_vhost.txt
+    printf "\nDone. Result is stored in result_vhost.txt\n"
+  done
+}
+
+hostalive(){
+echo "Probing for live hosts..."
+cat ./$domain/$foldername/alldomains.txt | sort -u | httprobe -c 50 -t 3000 >> ./$domain/$foldername/responsive.txt
+cat ./$domain/$foldername/responsive.txt | sed 's/\http\:\/\///g' |  sed 's/\https\:\/\///g' | sort -u | while read line; do
+probeurl=$(cat ./$domain/$foldername/responsive.txt | sort -u | grep -m 1 $line)
+echo "$probeurl" >> ./$domain/$foldername/urllist.txt
+done
+echo "$(cat ./$domain/$foldername/urllist.txt | sort -u)" > ./$domain/$foldername/urllist.txt
+echo  "${yellow}Total of $(wc -l ./$domain/$foldername/urllist.txt | awk '{print $1}') live subdomains were found${reset}"
+}
+
+aqua(){
+echo "Starting aquatone scan..."
+cat ./$domain/$foldername/urllist.txt | aquatone -chrome-path $chromiumPath -out ./$domain/$foldername/aqua_out -threads $auquatoneThreads -silent
 }
 
 probheaders(){
@@ -133,9 +158,9 @@ done
 
 sweetjs(){
   probheaders
-  scanjs
+  probjs
   probemdpoints
-
+  #scanjs
 }
 
 ffuffingback(){
@@ -159,14 +184,6 @@ ffuffingback(){
   done
 }
 
-vhost(){
-  for url in $(cat ./$domain/$foldername/urllist.txt); do
-    printf "\nVHOST Discovery"
-    dom=$(echo "$url" | unfurl -u domain)
-    ffuf -mc all -c -u "$url" -H "Host: FUZZ.$dom" -w ~/tools/ffufplus/wordlist/vhost.txt -ac -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0" -o ./$domain/$foldername/result_vhost.txt
-    printf "\nDone. Result is stored in result_vhost.txt\n"
-  done
-}
 
 ffuffingparam(){
   for url in $(cat ./$domain/$foldername/urllist.txt); do
@@ -175,10 +192,23 @@ ffuffingparam(){
     printf "\nDone. Result is stored" 
   done
 }
+urlscanio(){
+  mkdir -p ./$domain/$foldername/wayback-data/urlio
+  for url in $(cat ./$domain/$foldername/urllist.txt); do
+    #statements
+    gron "https://urlscan.io/api/v1/search/?q=domain:$url"  | grep 'url' | gron --ungron | tee ./$domain/$foldername/wayback-data/urlio/$url.txt
+  done
+  
+}
 
 waybackrecon () {
 echo "Scraping wayback for data..."
-cat ./$domain/$foldername/urllist.txt | waybackurls > ./$domain/$foldername/wayback-data/waybackurls.txt
+cat ./$domain/$foldername/urllist.txt | waybackurls > ./$domain/$foldername/wayback-data/wwaybackurls.txt
+echo "gauing wayback for data..."
+cat ./$domain/$foldername/urllist.txt | gau > ./$domain/$foldername/wayback-data/gwaybackurls.txt
+
+cat ./$domain/$foldername/wayback-data/wwaybackurls.txt | sort -u >> ./$domain/$foldername/wayback-data/gwaybackurls.txt
+cat ./$domain/$foldername/wayback-data/gwaybackurls.txt | sort -u >> ./$domain/$foldername/wayback-data/waybackurls.txt
 echo "ffuffing for wayback data"
 ffuffingback 
 echo "Done ffuffingback..."
@@ -233,15 +263,10 @@ cleanup(){
   cd $path
 }
 
-hostalive(){
-echo "Probing for live hosts..."
-cat ./$domain/$foldername/alldomains.txt | sort -u | httprobe -c 50 -t 3000 >> ./$domain/$foldername/responsive.txt
-cat ./$domain/$foldername/responsive.txt | sed 's/\http\:\/\///g' |  sed 's/\https\:\/\///g' | sort -u | while read line; do
-probeurl=$(cat ./$domain/$foldername/responsive.txt | sort -u | grep -m 1 $line)
-echo "$probeurl" >> ./$domain/$foldername/urllist.txt
-done
-echo "$(cat ./$domain/$foldername/urllist.txt | sort -u)" > ./$domain/$foldername/urllist.txt
-echo  "${yellow}Total of $(wc -l ./$domain/$foldername/urllist.txt | awk '{print $1}') live subdomains were found${reset}"
+
+
+reverselookup(){
+  cat ./$domain/$foldername/$domain.txt | ~/tools/reverseP.sh --loop --output  ./$domain/$foldername/reversehosts.txt
 }
 
 recon(){
@@ -256,6 +281,8 @@ recon(){
   cat ./$domain/$foldername/$domain.s.txt | sort -u > ./$domain/$foldername/$domain.txt
   cat ./$domain/$foldername/$domain.f.txt | sort -u > ./$domain/$foldername/$domain.txt
   cat ./$domain/$foldername/$domain.a.txt | sort -u > ./$domain/$foldername/$domain.txt
+  echo "Started reverselookup....."
+  reverselookup $domain
   echo "Checking certspotter..."
   curl -s https://certspotter.com/api/v0/certs\?domain\=$domain | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $domain >> ./$domain/$foldername/$domain.txt
   nsrecords $domain
@@ -288,10 +315,7 @@ cat ./$domain/$foldername/urllist.txt | xargs -P$subdomainThreads -I % sh -c "py
 }
 
 
-aqua(){
-echo "Starting aquatone scan..."
-cat ./$domain/$foldername/urllist.txt | aquatone -chrome-path $chromiumPath -out ./$domain/$foldername/aqua_out -threads $auquatoneThreads -silent
-}
+
 
 searchcrtsh(){
  ~/tools/massdns/scripts/ct.py $domain 2>/dev/null > ./$domain/$foldername/tmp.txt
@@ -314,7 +338,7 @@ nsrecords(){
 
                 cat ./$domain/$foldername/mass.txt | sort -u > ./$domain/$foldername/temp.txt
                 cat ./$domain/$foldername/domaintemp.txt | sort -u > ./$domain/$foldername/temp.txt
-                cat ./$domain/$foldername/crtsh.txt | sort -u >./$domain/$foldername/temp.txt
+                cat ./$domain/$foldername/crtsh.txt | sort -u > ./$domain/$foldername/temp.txt
 
 
                 cat ./$domain/$foldername/temp.txt | awk '{print $3}' | sort -u | while read line; do
