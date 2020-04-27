@@ -197,7 +197,7 @@ urlscanio(){
   mkdir -p ./$domain/$foldername/wayback-data/urlio
   for url in $(cat ./$domain/$foldername/urllist.txt); do
     #statements
-    gron "https://urlscan.io/api/v1/search/?q=domain:$url"  | grep 'url' | gron --ungron | tee ./$domain/$foldername/wayback-data/urlio/urlio.txt
+    gron https://urlscan.io/api/v1/search/?q=domain:$url  | grep 'url' | gron --ungron | tee ./$domain/$foldername/wayback-data/urlio/urlio.txt
   done
   
 }
@@ -211,7 +211,7 @@ cat ./$domain/$foldername/urllist.txt | gau > ./$domain/$foldername/wayback-data
 cat ./$domain/$foldername/wayback-data/wwaybackurls.txt | sort -u >> ./$domain/$foldername/wayback-data/gwaybackurls.txt
 cat ./$domain/$foldername/wayback-data/gwaybackurls.txt | sort -u >> ./$domain/$foldername/wayback-data/waybackurls.txt
 echo "ffuffing for wayback data"
-ffuffingback 
+#ffuffingback 
 echo "Done ffuffingback..."
 echo "Params mining...."
 #ffuffingparam
