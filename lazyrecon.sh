@@ -179,7 +179,7 @@ ffuffingback(){
   
   for url in $(cat ./$domain/$foldername/result_wayback.txt ); do
     STRING=($url)
-    echo "${STRING[2]}" >> ./$domain/$foldername/wayback-data/wwaybackurls.txt
+    echo "${STRING[2]}" >> ./$domain/$foldername/wayback-data/wwwaybackurls.txt
     #statements
   done
 }
@@ -193,10 +193,11 @@ ffuffingparam(){
   done
 }
 urlscanio(){
+  echo "Running urlscanio"
   mkdir -p ./$domain/$foldername/wayback-data/urlio
   for url in $(cat ./$domain/$foldername/urllist.txt); do
     #statements
-    gron "https://urlscan.io/api/v1/search/?q=domain:$url"  | grep 'url' | gron --ungron | tee ./$domain/$foldername/wayback-data/urlio/$url.txt
+    gron "https://urlscan.io/api/v1/search/?q=domain:$url"  | grep 'url' | gron --ungron | tee ./$domain/$foldername/wayback-data/urlio/urlio.txt
   done
   
 }
@@ -214,6 +215,7 @@ ffuffingback
 echo "Done ffuffingback..."
 echo "Params mining...."
 #ffuffingparam
+urlscanio
 cat ./$domain/$foldername/wayback-data/waybackurls.txt  | sort -u | unfurl --unique keys > ./$domain/$foldername/wayback-data/paramlist.txt
 [ -s ./$domain/$foldername/wayback-data/paramlist.txt ] && echo "Wordlist saved to /$domain/$foldername/wayback-data/paramlist.txt"
 
@@ -282,7 +284,7 @@ recon(){
   cat ./$domain/$foldername/$domain.f.txt | sort -u > ./$domain/$foldername/$domain.txt
   cat ./$domain/$foldername/$domain.a.txt | sort -u > ./$domain/$foldername/$domain.txt
   echo "Started reverselookup....."
-  reverselookup $domain
+  #reverselookup $domain
   echo "Checking certspotter..."
   curl -s https://certspotter.com/api/v0/certs\?domain\=$domain | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $domain >> ./$domain/$foldername/$domain.txt
   nsrecords $domain
