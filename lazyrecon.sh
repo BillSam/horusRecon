@@ -266,7 +266,7 @@ cleanup(){
 
 
 reverselookup(){
-  cat ./$domain/$foldername/$domain.txt | ~/tools/reverseP.sh --loop --output  ./$domain/$foldername/reversehosts.txt
+  ~/tools/reverseP.sh --type all --ip $domain --output  ./$domain/$foldername/reversehosts.txt
 }
 
 recon(){
