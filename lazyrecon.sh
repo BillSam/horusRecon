@@ -65,11 +65,8 @@ fi
 
 robgit(){
   echo "Robbing github..."
-  v=$domain
-  echo "domain is" $v
-  v2=${v::-4} 
-  echo "Robbing github...for " $v2 
-  gitrob -github-access-token=73e9fc9efc6b8a1088be084d6770aa3f6f3940e1 $v2 -save ./$domain/$foldername/gitrobbed.txt
+  dom=echo $domain | cut -f1 -d"." 
+  gitrob -github-access-token=73e9fc9efc6b8a1088be084d6770aa3f6f3940e1 $dom -save ./$domain/$foldername/gitrobbed.txt
 }
 
 discovery(){
