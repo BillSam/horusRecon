@@ -220,7 +220,7 @@ cat ./$domain/$foldername/urllist.txt | gau > ./$domain/$foldername/wayback-data
 cat ./$domain/$foldername/wayback-data/wwaybackurls.txt | sort -u >> ./$domain/$foldername/wayback-data/gwaybackurls.txt
 cat ./$domain/$foldername/wayback-data/gwaybackurls.txt | sort -u >> ./$domain/$foldername/wayback-data/waybackurls.txt
 echo "ffuffing for wayback data"
-ffuffingback 
+#ffuffingback 
 echo "Done ffuffingback..."
 echo "Params mining...."
 #ffuffingparam
