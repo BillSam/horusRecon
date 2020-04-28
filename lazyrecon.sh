@@ -69,9 +69,7 @@ robgit(){
   gitrob -save ./$domain/$foldername/gitrobbed.json $dom  
 }
 
-scans3(){
 
-}
 discovery(){
  
 	hostalive $domain
@@ -332,9 +330,6 @@ echo "Starting dirsearch...using dirsearch"
 cat ./$domain/$foldername/urllist.txt | xargs -P$subdomainThreads -I % sh -c "python3 ~/tools/dirsearch/dirsearch.py -e php,asp,aspx,jsp,html,zip,jar -w $dirsearchWordlist -t $dirsearchThreads -u % | grep Target && tput sgr0 && ./lazyrecon.sh -r $domain -r $foldername -r %"
 }
 
-
-
-
 searchcrtsh(){
  ~/tools/massdns/scripts/ct.py $domain 2>/dev/null > ./$domain/$foldername/tmp.txt
  [ -s ./$domain/$foldername/tmp.txt ] && cat ./$domain/$foldername/tmp.txt | ~/tools/massdns/bin/massdns -r ~/tools/massdns/lists/resolvers.txt -t A -q -o S -w  ./$domain/$foldername/crtsh.txt
@@ -363,8 +358,6 @@ nsrecords(){
                 wildcard=$(cat ./$domain/$foldername/temp.txt | grep -m 1 $line)
                 echo "$wildcard" >> ./$domain/$foldername/cleantemp.txt
                 done
-
-
 
                 cat ./$domain/$foldername/cleantemp.txt | grep CNAME >> ./$domain/$foldername/cnames.txt
                 cat ./$domain/$foldername/cnames.txt | sort -u | while read line; do
@@ -400,11 +393,12 @@ takeThemOver(){
   echo "Done with SubOver"
 
 }
+
 report(){
   subdomain=$(echo $subd | sed 's/\http\:\/\///g' |  sed 's/\https\:\/\///g')
   echo "${yellow}	[+] Generating report for $subdomain"
 
-   cat ./$domain/$foldername/aqua_out/aquatone_session.json | jq --arg v "$subd" -r '.pages[$v].headers[] | keys[] as $k | "\($k), \(.[$k])"' | grep -v "decreasesSecurity\|increasesSecurity" >> ./$domain/$foldername/aqua_out/parsedjson/$subdomain.headers
+  cat ./$domain/$foldername/aqua_out/aquatone_session.json | jq --arg v "$subd" -r '.pages[$v].headers[] | keys[] as $k | "\($k), \(.[$k])"' | grep -v "decreasesSecurity\|increasesSecurity" >> ./$domain/$foldername/aqua_out/parsedjson/$subdomain.headers
   dirsearchfile=$(ls ~/tools/dirsearch/reports/$subdomain/ | grep -v old)
 
   touch ./$domain/$foldername/reports/$subdomain.html
