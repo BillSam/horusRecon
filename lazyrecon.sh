@@ -345,15 +345,18 @@ nsrecords(){
                 echo "${green}Started dns records check...${reset}"
                 echo "Looking into CNAME Records..."
 
-                cat ./$domain/$foldername/mass.txt | sort -u > ./$domain/$foldername/temp.txt
-                cat ./$domain/$foldername/domaintemp.txt | sort -u > ./$domain/$foldername/temp.txt
-                cat ./$domain/$foldername/crtsh.txt | sort -u > ./$domain/$foldername/temp.txt
-                cat ./$domain/$foldername/$domain.txt | sort -u > ./$domain/$foldername/temp.txt
+                #cat ./$domain/$foldername/mass.txt >> ./$domain/$foldername/temp.txt
+                cat ./$domain/$foldername/domaintemp.txt >> ./$domain/$foldername/temp.txt
+                cat ./$domain/$foldername/crtsh.txt >> ./$domain/$foldername/temp.txt
+
 
                 cat ./$domain/$foldername/temp.txt | awk '{print $3}' | sort -u | while read line; do
                 wildcard=$(cat ./$domain/$foldername/temp.txt | grep -m 1 $line)
                 echo "$wildcard" >> ./$domain/$foldername/cleantemp.txt
                 done
+
+
+
                 cat ./$domain/$foldername/cleantemp.txt | grep CNAME >> ./$domain/$foldername/cnames.txt
                 cat ./$domain/$foldername/cnames.txt | sort -u | while read line; do
                 hostrec=$(echo "$line" | awk '{print $1}')
@@ -371,12 +374,13 @@ nsrecords(){
                 x="$line"
                 echo "${x%?}" >> ./$domain/$foldername/alldomains.txt
                 done
+                sleep 1
 
 
                 echo "Looking for subdomainovers...."
 
                 cd ~/go/src/github.com/Ice3man543/SubOver
-                go run subover.go -l $path/$domain/$foldername/alldomains.txt  -o ./$domain/$foldername/subover.txt
+                go run subover.go -l $path/$domain/$foldername/alldomains.txt  -o $path/$domain/$foldername/subover.txt
                 echo "Done with SubOver"
                 cd $path
                 echo "Looking for subdomainjacks...."
