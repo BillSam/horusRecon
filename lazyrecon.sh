@@ -63,16 +63,24 @@ if [ -z "${domain}" ] && [[ -z ${subreport[@]} ]]; then
 fi
 
 
+robgit(){
+  echo "Robbing github..."
+  v=$domain
+  v2=${v::-4} 
+  echo "Robbing github...for " $v2 
+  gitrob -github-access-token=73e9fc9efc6b8a1088be084d6770aa3f6f3940e1 $v2 -save ./$domain/$foldername/gitrobbed.txt
+}
 
 discovery(){
  
-	hostalive $domain
-	cleandirsearch $domain
-  vhost $domain
-	aqua $domain
-	cleanup $domain
-	waybackrecon $domain
-  sweetjs $domain
+	#hostalive $domain
+	#cleandirsearch $domain
+  #vhost $domain
+	#aqua $domain
+	#cleanup $domain
+	#waybackrecon $domain
+  #sweetjs $domain
+  robgit $domain
   #dirsearcher
 }
 
