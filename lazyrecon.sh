@@ -374,12 +374,13 @@ nsrecords(){
 
 
                 echo "Looking for subdomainovers...."
-                cd ~/go/src/github.com/Ice3man543/SubOver
-                go run subover.go -l ./$domain/$foldername/alldomains.txt  -o ./$domain/$foldername/subover.txt
-                echo "Done with SubOver"
 
+                cd ~/go/src/github.com/Ice3man543/SubOver
+                go run subover.go -l $path/$domain/$foldername/alldomains.txt  -o ./$domain/$foldername/subover.txt
+                echo "Done with SubOver"
+                cd $path
                 echo "Looking for subdomainjacks...."
-                subjack -w subdomains.txt -t 100 -timeout 30 -o ./$domain/$foldername/subjack.txt -ssl
+                subjack -w ./$domain/$foldername/alldomains.txt -t 100 -timeout 30 -o ./$domain/$foldername/subjack.txt -ssl
                 echo "Done with SubOver"
 
                 sleep 2
