@@ -343,8 +343,13 @@ nsrecords(){
                 cat ./$domain/$foldername/mass.txt | sort -u > ./$domain/$foldername/temp.txt
                 cat ./$domain/$foldername/domaintemp.txt | sort -u > ./$domain/$foldername/temp.txt
                 cat ./$domain/$foldername/crtsh.txt | sort -u > ./$domain/$foldername/temp.txt
+                cat ./$domain/$foldername/$domain.txt | sort -u > ./$domain/$foldername/temp.txt
 
-
+                cat ./$domain/$foldername/temp.txt | awk '{print $3}' | sort -u | while read line; do
+                echo "Looking for subovers...."
+                SubOver -l ./$domain/$foldername/temp.txt -timeout 5 -o ./$domain/$foldername/subover.out;
+                echo "Done with SubOver"
+                
                 cat ./$domain/$foldername/temp.txt | awk '{print $3}' | sort -u | while read line; do
                 wildcard=$(cat ./$domain/$foldername/temp.txt | grep -m 1 $line)
                 echo "$wildcard" >> ./$domain/$foldername/cleantemp.txt
