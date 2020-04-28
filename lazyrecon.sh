@@ -278,13 +278,18 @@ recon(){
   echo "${green}Recon started on $domain ${reset}"
   echo "Listing subdomains using sublister..."
   python ~/tools/Sublist3r/sublist3r.py -d $domain -t 10 -v -o ./$domain/$foldername/$domain.s.txt > /dev/null
+  echo "Listing subdomains using subfinder.."
+  subfinder -d $domain -o ./$domain/$foldername/$domain.sf.txt
   echo "Listing subdomains using findomain..."
   findomain-linux -t $domain -u ./$domain/$foldername/$domain.f.txt > /dev/null
   echo "Listing subdomains using assetfinder"
   assetfinder --subs-only $domain | sort -u > ./$domain/$foldername/$domain.a.txt
+
   cat ./$domain/$foldername/$domain.s.txt | sort -u > ./$domain/$foldername/$domain.txt
   cat ./$domain/$foldername/$domain.f.txt | sort -u > ./$domain/$foldername/$domain.txt
   cat ./$domain/$foldername/$domain.a.txt | sort -u > ./$domain/$foldername/$domain.txt
+  cat ./$domain/$foldername/$domain.sf.txt | sort -u > ./$domain/$foldername/$domain.txt
+
   echo "Started reverselookup....."
   #reverselookup $domain
   echo "Checking certspotter..."
@@ -366,13 +371,18 @@ nsrecords(){
                 x="$line"
                 echo "${x%?}" >> ./$domain/$foldername/alldomains.txt
                 done
-                
-                echo "Looking for subovers...."
-                SubOver -l ./$domain/$foldername/temp.txt  -o ./$domain/$foldername/subover.out
+
+
+                echo "Looking for subdomainovers...."
+                cd ~/go/src/github.com/Ice3man543/SubOver
+                go run subover.go -l ./$domain/$foldername/alldomains.txt  -o ./$domain/$foldername/subover.txt
                 echo "Done with SubOver"
 
+                echo "Looking for subdomainjacks...."
+                subjack -w subdomains.txt -t 100 -timeout 30 -o ./$domain/$foldername/subjack.txt -ssl
+                echo "Done with SubOver"
 
-                sleep 1
+                sleep 2
 
 }
 
