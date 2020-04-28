@@ -69,17 +69,20 @@ robgit(){
   gitrob -save ./$domain/$foldername/gitrobbed.json $dom  
 }
 
+scans3(){
+
+}
 discovery(){
  
-	#hostalive $domain
-	#cleandirsearch $domain
-  #vhost $domain
-	#aqua $domain
-	#cleanup $domain
-	#waybackrecon $domain
-  #sweetjs $domain
-  robgit $domain
-  #dirsearcher
+	hostalive $domain
+	cleandirsearch $domain
+  vhost $domain
+	aqua $domain
+	cleanup $domain
+	waybackrecon $domain
+  sweetjs $domain
+  #robgit $domain
+  dirsearcher
 }
 
 vhost(){
@@ -167,7 +170,7 @@ sweetjs(){
   probheaders
   probjs
   probemdpoints
-  #scanjs
+  scanjs
 }
 
 ffuffingback(){
@@ -219,7 +222,7 @@ cat ./$domain/$foldername/urllist.txt | gau > ./$domain/$foldername/wayback-data
 cat ./$domain/$foldername/wayback-data/wwaybackurls.txt | sort -u >> ./$domain/$foldername/wayback-data/gwaybackurls.txt
 cat ./$domain/$foldername/wayback-data/gwaybackurls.txt | sort -u >> ./$domain/$foldername/wayback-data/waybackurls.txt
 echo "ffuffing for wayback data"
-#ffuffingback 
+ffuffingback 
 echo "Done ffuffingback..."
 echo "Params mining...."
 #ffuffingparam
@@ -297,7 +300,7 @@ recon(){
   cat ./$domain/$foldername/$domain.sf.txt | sort -u > ./$domain/$foldername/$domain.txt
 
   echo "Started reverselookup....."
-  #reverselookup $domain
+  reverselookup $domain
   echo "Checking certspotter..."
   curl -s https://certspotter.com/api/v0/certs\?domain\=$domain | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $domain >> ./$domain/$foldername/$domain.txt
   nsrecords $domain
@@ -346,12 +349,12 @@ nsrecords(){
                 echo "Checking http://crt.sh"
                 searchcrtsh $domain
                 echo "Starting Massdns Subdomain discovery this may take a while"
-                #mass $domain > /dev/null
+                mass $domain > /dev/null
                 echo "Massdns finished..."
                 echo "${green}Started dns records check...${reset}"
                 echo "Looking into CNAME Records..."
 
-                #cat ./$domain/$foldername/mass.txt >> ./$domain/$foldername/temp.txt
+                cat ./$domain/$foldername/mass.txt >> ./$domain/$foldername/temp.txt
                 cat ./$domain/$foldername/domaintemp.txt >> ./$domain/$foldername/temp.txt
                 cat ./$domain/$foldername/crtsh.txt >> ./$domain/$foldername/temp.txt
 
@@ -380,23 +383,23 @@ nsrecords(){
                 x="$line"
                 echo "${x%?}" >> ./$domain/$foldername/alldomains.txt
                 done
-                sleep 1
-
-
-                echo "Looking for subdomainovers...."
-
-                cd ~/go/src/github.com/Ice3man543/SubOver
-                go run subover.go -l $path/$domain/$foldername/alldomains.txt  -o $path/$domain/$foldername/subover.txt
-                echo "Done with SubOver"
-                cd $path
-                echo "Looking for subdomainjacks...."
-                subjack -w ./$domain/$foldername/alldomains.txt -t 100 -timeout 30 -o ./$domain/$foldername/subjack.txt -ssl
-                echo "Done with SubOver"
-
+                takeThemOver $domain
                 sleep 2
 
 }
 
+takeThemOver(){
+  echo "Looking for subdomainovers...."
+
+  cd ~/go/src/github.com/Ice3man543/SubOver
+  go run subover.go -l $path/$domain/$foldername/alldomains.txt  -o $path/$domain/$foldername/subover.txt
+  echo "Done with SubOver"
+  cd $path
+  echo "Looking for subdomainjacks...."
+  subjack -w ./$domain/$foldername/alldomains.txt -t 100 -timeout 30 -o ./$domain/$foldername/subjack.txt -ssl
+  echo "Done with SubOver"
+
+}
 report(){
   subdomain=$(echo $subd | sed 's/\http\:\/\///g' |  sed 's/\https\:\/\///g')
   echo "${yellow}	[+] Generating report for $subdomain"
