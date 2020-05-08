@@ -78,7 +78,7 @@ discovery(){
 	aqua $domain
 	cleanup $domain
 	waybackrecon $domain
-  sweetjs $domain
+  #sweetjs $domain
   #robgit $domain
   dirsearcher
 }
@@ -168,7 +168,7 @@ sweetjs(){
   probheaders
   probjs
   probemdpoints
-  scanjs
+  #scanjs
 }
 
 ffuffingback(){
