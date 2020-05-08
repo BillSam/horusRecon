@@ -383,7 +383,6 @@ nsrecords(){
 
 takeThemOver(){
   echo "Looking for subdomainovers...."
-
   cd ~/go/src/github.com/Ice3man543/SubOver
   go run subover.go -l $path/$domain/$foldername/alldomains.txt  -o $path/$domain/$foldername/subover.txt
   echo "Done with SubOver"
