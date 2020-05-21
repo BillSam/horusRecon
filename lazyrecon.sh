@@ -43,12 +43,12 @@ while getopts ":d:e:r:" o; do
             #### working on subdomain exclusion
         e)
             set -f
-	    IFS=","
-	    excluded+=($OPTARG)
-	    unset IFS
+      IFS=","
+      excluded+=($OPTARG)
+      unset IFS
             ;;
 
-		r)
+    r)
             subreport+=("$OPTARG")
             ;;
         *)
@@ -62,7 +62,6 @@ if [ -z "${domain}" ] && [[ -z ${subreport[@]} ]]; then
    usage; exit 1;
 fi
 
-
 robgit(){
   echo "Robbing github..."
   dom=$(echo "$domain" | cut -f1 -d".") 
@@ -70,11 +69,10 @@ robgit(){
 }
 
 
-discovery(){
- 
+discovery(){ 
 	hostalive $domain
 	cleandirsearch $domain
-  vhost $domain
+  #vhost $domain
 	aqua $domain
 	cleanup $domain
 	waybackrecon $domain
@@ -215,16 +213,17 @@ waybackrecon () {
 echo "Scraping wayback for data..."
 cat ./$domain/$foldername/urllist.txt | waybackurls > ./$domain/$foldername/wayback-data/wwaybackurls.txt
 echo "gauing wayback for data..."
-cat ./$domain/$foldername/urllist.txt | gau > ./$domain/$foldername/wayback-data/gwaybackurls.txt
+#cat ./$domain/$foldername/urllist.txt | gau > ./$domain/$foldername/wayback-data/gwaybackurls.txt
 
-cat ./$domain/$foldername/wayback-data/wwaybackurls.txt | sort -u >> ./$domain/$foldername/wayback-data/gwaybackurls.txt
-cat ./$domain/$foldername/wayback-data/gwaybackurls.txt | sort -u >> ./$domain/$foldername/wayback-data/waybackurls.txt
+#cat ./$domain/$foldername/wayback-data/wwaybackurls.txt | sort -u >> ./$domain/$foldername/wayback-data/gwaybackurls.txt
+#cat ./$domain/$foldername/wayback-data/gwaybackurls.txt | sort -u >> ./$domain/$foldername/wayback-data/waybackurls.txt
+cat ./$domain/$foldername/wayback-data/wwaybackurls.txt | sort -u >> ./$domain/$foldername/wayback-data/waybackurls.txt
 echo "ffuffing for wayback data"
 #ffuffingback 
 echo "Done ffuffingback..."
 echo "Params mining...."
 #ffuffingparam
-urlscanio
+#urlscanio
 cat ./$domain/$foldername/wayback-data/waybackurls.txt  | sort -u | unfurl --unique keys > ./$domain/$foldername/wayback-data/paramlist.txt
 [ -s ./$domain/$foldername/wayback-data/paramlist.txt ] && echo "Wordlist saved to /$domain/$foldername/wayback-data/paramlist.txt"
 
@@ -325,9 +324,8 @@ excludedomains(){
 }
 
 dirsearcher(){
-
-echo "Starting dirsearch...using dirsearch"
-cat ./$domain/$foldername/urllist.txt | xargs -P $subdomainThreads -I % sh -c "python3 ~/tools/dirsearch/dirsearch.py -e php,asp,aspx,jsp,html,zip,jar -w $dirsearchWordlist -t $dirsearchThreads -u % | grep Target && tput sgr0 && ./lazyrecon.sh -r $domain -r $foldername -r %"
+echo "Starting dirsearch..."
+cat ./$domain/$foldername/urllist.txt | xargs -P$subdomainThreads -I % sh -c "python3 ~/tools/dirsearch/dirsearch.py -e php,asp,aspx,jsp,html,zip,jar -w $dirsearchWordlist -t $dirsearchThreads -u % | grep Target && tput sgr0 && ./lazyrecon.sh -r $domain -r $foldername -r %"
 }
 
 searchcrtsh(){
@@ -376,7 +374,7 @@ nsrecords(){
                 x="$line"
                 echo "${x%?}" >> ./$domain/$foldername/alldomains.txt
                 done
-                takeThemOver $domain
+                #takeThemOver $domain
                 sleep 2
 
 }
