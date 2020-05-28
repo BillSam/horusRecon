@@ -298,8 +298,8 @@ recon(){
 
   echo "Started reverselookup....."
   reverselookup $domain
-  echo "Checking certspotter..."
-  curl -s https://certspotter.com/api/v0/certs\?domain\=$domain | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $domain >> ./$domain/$foldername/$domain.txt
+  #echo "Checking certspotter..."
+  #curl -s https://certspotter.com/api/v0/certs\?domain\=$domain | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $domain >> ./$domain/$foldername/$domain.txt
   nsrecords $domain
   #excludedomains
   echo "Starting discovery..."
