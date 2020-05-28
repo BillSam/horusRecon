@@ -297,7 +297,7 @@ recon(){
   cat ./$domain/$foldername/$domain.sf.txt | sort -u > ./$domain/$foldername/$domain.txt
 
   echo "Started reverselookup....."
-  reverselookup $domain
+  #reverselookup $domain
   #echo "Checking certspotter..."
   #curl -s https://certspotter.com/api/v0/certs\?domain\=$domain | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $domain >> ./$domain/$foldername/$domain.txt
   nsrecords $domain
